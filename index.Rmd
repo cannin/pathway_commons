@@ -9,6 +9,8 @@ knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 ```{r, echo=FALSE, results='asis'}
 library(magrittr)
 library(stringr)
+library(knitr)
+library(htmltools)
 
 source("readGmt.R")
 
@@ -17,6 +19,18 @@ gmt_files <- list.files(".", pattern="gmt", recursive=TRUE, full.names=TRUE)
 
 tmp_df <- data.frame(img=img_files, gmt=gmt_files, stringsAsFactors=FALSE)
 tmp_df <- tmp_df[!grepl("docs", tmp_df$img),]
+
+all_genes <- NULL 
+
+for(i in 1:nrow(tmp_df)) {
+  #i <- 2
+  t1 <- readGmt(gmt_files[i], returnInfo = TRUE)
+  t2 <- as.data.frame(t1[[1]], stringsAsFactors=FALSE)
+  all_genes <- c(all_genes, t2$geneSet)
+}
+
+all_genes_str <- all_genes %>% unique %>% sort %>% paste(., collapse=" ")
+paste0("<h2>Key Genes</h2><p>", all_genes_str, "</p>") %>% htmlPreserve %>% asis_output %>% cat
 
 for(i in 1:nrow(tmp_df)) {
   #i <- 2
@@ -41,4 +55,6 @@ for(i in 1:nrow(tmp_df)) {
   
   cat(knitr::asis_output(htmltools::htmlPreserve(paste0("<a target=\"_blank\" href=\"", link, "\"><img src=\"", img_files[i], "\" alt=\"", alt_text, "\"/></a>"))))
 }
+
+
 ```
