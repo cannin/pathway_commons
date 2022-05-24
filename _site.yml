@@ -1,0 +1,8 @@
+name: "pathway_commons_glycolysis"
+output_dir: "_docs"
+output:
+  html_document:
+    include:
+      in_header: google_analytics.js
+include: ["sitemap.txt", "data"]
+exclude: ["*.txt", "*.tsv", "*.brew", "*.csv", "*.docx", "*.rds", "LICENSE"]
