@@ -8,6 +8,7 @@ knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 
 ```{r, echo=FALSE, results='asis'}
 library(magrittr)
+library(stringr)
 
 source("readGmt.R")
 
@@ -22,11 +23,15 @@ for(i in 1:nrow(tmp_df)) {
   t1 <- readGmt(gmt_files[i], returnInfo = TRUE)
   t2 <- as.data.frame(t1[[1]], stringsAsFactors=FALSE)
   t3 <- t2[, c(2:3)]
-  t3$name <- gsub("\\[.*\\]", "", t3$name) %>% trimws 
   t4 <- unique(t3)  
+  t5 <- t4
+  t5$name <- gsub("\\[.*\\]", "", t5$name) %>% trimws 
   
-  name <- t4$name
-  data_source <- t4$dataSource
+  link <- t4$name %>% str_extract(., "\\[.*\\]") %>% gsub("\\[", "", .) %>% gsub("\\]", "", .)
+  link <- paste0("https://apps.pathwaycommons.org/pathways?uri=", link) # Necessary otherwise it redirects to a RDF entry
+  
+  name <- t5$name
+  data_source <- t5$dataSource
   title <- paste0("Pathway: ", name, " Source: ", data_source)
   
   cat(knitr::asis_output(htmltools::htmlPreserve(paste0("<h2>", title, "</h2>"))))
@@ -34,6 +39,6 @@ for(i in 1:nrow(tmp_df)) {
   genes <- paste(t2$geneSet, collapse=" ")
   alt_text <- paste0(title, " Genes: ", genes)
   
-  cat(knitr::asis_output(htmltools::htmlPreserve(paste0("<img src=\"", img_files[i], "\" alt=\"", alt_text, "\"/>"))))
+  cat(knitr::asis_output(htmltools::htmlPreserve(paste0("<a target=\"_blank\" href=\"", link, "\"><img src=\"", img_files[i], "\" alt=\"", alt_text, "\"/></a>"))))
 }
 ```
